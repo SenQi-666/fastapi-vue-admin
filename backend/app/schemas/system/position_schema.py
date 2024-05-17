@@ -38,5 +38,5 @@ class PositionOptionsOut(BaseModel):
 
     id: int
     name: str
-    order: Optional[int] = 1
+    description: Optional[str] = None
     available: Optional[bool]

@@ -49,15 +49,13 @@ class LoginService:
         if not verify_password(login_form.password, user.password):
             raise CustomException(
                 msg="密码错误",
-                code=status.HTTP_403_FORBIDDEN,
-                status_code=status.HTTP_403_FORBIDDEN
+                code=status.HTTP_401_UNAUTHORIZED
             )
 
         if not user.available:
             raise CustomException(
                 msg="用户已被停用",
-                code=status.HTTP_403_FORBIDDEN,
-                status_code=status.HTTP_403_FORBIDDEN
+                code=status.HTTP_403_FORBIDDEN
             )
 
         user = await UserCRUD(auth).update_last_login(user.id)
@@ -76,15 +74,14 @@ class LoginService:
             is_refresh=True,
             exp=datetime.utcnow() + timedelta(minutes=settings.REFRESH_TOKEN_EXPIRE_MINUTES)
         ))
-
-        return JWTOut(access_token=access_token, refresh_token=refresh_token, expires_in=expires.seconds)
+        return JWTOut(access_token=access_token, refresh_token=refresh_token, expires_in=expires.total_seconds())
 
     @classmethod
     async def refresh_token(cls, refresh_token: str) -> JWTOut:
         token_payload = decode_jwt_token(refresh_token)
         if not token_payload.is_refresh:
             raise CustomException(
-                msg="非法token",
+                msg="非法凭证",
                 code=status.HTTP_403_FORBIDDEN,
                 status_code=status.HTTP_403_FORBIDDEN
             )

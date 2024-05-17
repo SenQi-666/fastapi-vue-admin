@@ -3,6 +3,7 @@
 
 from typing import Dict, List
 from app.crud.system import RoleCRUD
+from app.crud.system import MenuCRUD
 from app.schemas.system import (
     Auth,
     RoleCreate,
@@ -10,8 +11,10 @@ from app.schemas.system import (
     RoleOut,
     RoleSimpleOut,
     RoleOptionsOut,
+    RolePermissionOut,
     RolePermissionSetting
 )
+from app.utils.tools import get_parent_id_map, get_parent_recursion
 
 
 class RoleService:
@@ -45,8 +48,21 @@ class RoleService:
         await RoleCRUD(auth).delete(ids=[id])
 
     @classmethod
+    async def get_role_permission(cls, id: int, auth: Auth) -> Dict:
+        obj = await RoleCRUD(auth).get_by_id(id)
+        return RolePermissionOut.model_validate(obj).model_dump()
+
+    @classmethod
     async def set_role_permission(cls, permission_in: RolePermissionSetting, auth: Auth) -> None:
-        await RoleCRUD(auth).set_role_menus(permission_in.role_ids, permission_in.menu_ids)
+        data = await MenuCRUD(auth).get_menu_list()
+        id_map = get_parent_id_map(model_list=data)
+
+        permission_total_menu_ids = []
+        for menu_id in permission_in.menu_ids:
+            menu_ids = get_parent_recursion(id=menu_id, id_map=id_map)
+            permission_total_menu_ids.extend(menu_ids)
+
+        await RoleCRUD(auth).set_role_menus(permission_in.role_ids, permission_total_menu_ids)
         await RoleCRUD(auth).set_role_data_scope(permission_in.role_ids, permission_in.data_scope)
 
         dept_ids = permission_in.dept_ids if permission_in.data_scope == 5 else []
@@ -58,6 +74,6 @@ class RoleService:
 
     @classmethod
     async def get_role_options(cls, search: Dict, auth: Auth) -> List[Dict]:
-        data = await RoleCRUD(auth).get_role_list(search)
+        data = await RoleCRUD(auth).get_role_list(search, order=['order'])
         data = [RoleOptionsOut.model_validate(obj).model_dump() for obj in data]
         return data

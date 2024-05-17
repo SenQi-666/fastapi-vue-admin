@@ -1,17 +1,15 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from typing import Union, Optional, List
+from typing import Union, Optional
 from pydantic import BaseModel, ConfigDict
 from datetime import datetime
-from app.schemas.system import UserSimpleOut, RolePermission
+from app.schemas.system import UserPermissionOut
 from sqlalchemy.ext.asyncio import AsyncSession
 
 
-class AuthUser(UserSimpleOut, BaseModel):
-    model_config = ConfigDict(arbitrary_types_allowed=True)
-
-    roles: List[RolePermission] = []
+class AuthUser(UserPermissionOut):
+    ...
 
 
 class Auth(BaseModel):
@@ -28,15 +26,15 @@ class JWTPayload(BaseModel):
     exp: Union[datetime, int]
 
 
+class RefreshTokenPayload(BaseModel):
+    refresh_token: str
+
+
 class JWTOut(BaseModel):
     access_token: str
     refresh_token: str
     token_type: str = "Bearer"
     expires_in: int
-
-
-class RefreshTokenPayload(BaseModel):
-    refresh_token: str
 
 
 class CaptchaOut(BaseModel):

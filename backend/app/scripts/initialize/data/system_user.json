@@ -1,0 +1,34 @@
+[
+  {
+    "id": 1,
+    "username": "senqi",
+    "password": "$2b$12$uJJ2i4xEVOTzZmZLacVPB.xk5OKCKISU6at82Vqp5jgQBWvKTAeDe",
+    "name": "森七",
+    "mobile": "17777777777",
+    "email": "superadmin@example.com",
+    "gender": 1,
+    "avatar": "https://gw.alipayobjects.com/zos/rmsportal/BiazfanxmamNRoxxVxka.png",
+    "available": true,
+    "is_superuser": true,
+    "last_login": null,
+    "dept_id": 1,
+    "creator_id": null,
+    "description": null
+  },
+  {
+    "id": 2,
+    "username": "test",
+    "password": "$2b$12$gDtRtgTciP9sVD7Wgwy5AuZPdfq9/biBhV2U9sz/WhP21otNV57.C",
+    "name": "测试",
+    "mobile": "17777777777",
+    "email": "test@example.com",
+    "gender": 1,
+    "avatar": "https://gw.alipayobjects.com/zos/rmsportal/BiazfanxmamNRoxxVxka.png",
+    "available": true,
+    "is_superuser": false,
+    "last_login": null,
+    "dept_id": 1,
+    "creator_id": 1,
+    "description": null
+  }
+]

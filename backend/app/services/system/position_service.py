@@ -49,6 +49,6 @@ class PositionService:
 
     @classmethod
     async def get_position_options(cls, search: Dict, auth: Auth) -> List[Dict]:
-        data = await PositionCRUD(auth).get_position_list(search)
+        data = await PositionCRUD(auth).get_position_list(search, order=['order'])
         data = [PositionOptionsOut.model_validate(obj).model_dump() for obj in data]
         return data

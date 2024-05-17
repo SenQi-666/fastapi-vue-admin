@@ -40,11 +40,11 @@ async def get_role_detail(
     return SuccessResponse(data)
 
 
-@router.post("/options", summary="查询角色选项", description="查询角色选项")
+@router.get("/options", summary="查询角色选项", description="查询角色选项")
 async def get_position_options(
         paging_query: PaginationQueryParams = Depends(),
         role_query: RoleQueryParams = Depends(),
-        auth: Auth = Depends(AuthPermission(permissions=["system:role:query"])),
+        auth: Auth = Depends(AuthPermission(permissions=["system:role:options"])),
 ) -> JSONResponse:
     search = role_query.__dict__
     data = await RoleService.get_role_options(search, auth)
@@ -94,6 +94,15 @@ async def batch_disable_role(
 ) -> JSONResponse:
     await RoleService.set_role_available(data.ids, available=False, auth=auth)
     return SuccessResponse(msg="停用成功")
+
+
+@router.get("/permission", summary="查询角色权限", description="查询角色权限")
+async def get_role_permission(
+    id: int = Query(..., description="角色ID"),
+    auth: Auth = Depends(AuthPermission(permissions=["system:role:query"])),
+) -> JSONResponse:
+    data = await RoleService.get_role_permission(id, auth)
+    return SuccessResponse(data)
 
 
 @router.post("/permission/setting", summary="设置角色权限", description="设置角色权限")

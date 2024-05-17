@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from app.models.base import Model, CustomMixin
+from app.models.base import Model, CustomMixin, TimestampMixin
 from sqlalchemy.orm import relationship
 from app.models.m2m import (
     RoleMenusModel,
@@ -21,10 +21,11 @@ from sqlalchemy import (
 )
 
 
-class MenuModel(CustomMixin, Model):
+class MenuModel(TimestampMixin, Model):
     __tablename__ = "system_menu"
     __table_args__ = ({'comment': '菜单表'})
 
+    id = Column(BIGINT, primary_key=True, autoincrement=True, unique=True, comment='主键ID', nullable=False)
     name = Column(String(50), nullable=False, comment="菜单名称")
     type = Column(Integer, nullable=False, comment="菜单类型")
     icon = Column(String(50), nullable=False, default="", comment="图标")
@@ -33,15 +34,17 @@ class MenuModel(CustomMixin, Model):
     route_name = Column(String(50), nullable=True, comment="路由名称")
     route_path = Column(String(50), nullable=True, comment="路由路径")
     component_path = Column(String(50), nullable=True, comment="组件路径")
+    redirect = Column(String(50), nullable=True, comment="重定向")
     available = Column(Boolean, nullable=False, default=True, comment="是否可用")
     cache = Column(Boolean, nullable=False, default=True, comment="是否缓存")
     hidden = Column(Boolean, nullable=False, default=False, comment="是否隐藏")
     parent_id = Column(
         BIGINT,
-        ForeignKey("system_menu.id", ondelete="CASCADE", onupdate="RESTRICT"),
+        ForeignKey("system_menu.id", ondelete="CASCADE", onupdate="CASCADE"),
         nullable=True, index=True, comment="父级菜单ID"
     )
     parent_name = Column(String(50), nullable=True, comment="父级菜单名称")
+    description = Column(Text, nullable=True, comment="备注")
 
     parent = relationship(
         "MenuModel",
@@ -51,18 +54,20 @@ class MenuModel(CustomMixin, Model):
     )
 
 
-class DeptModel(CustomMixin, Model):
+class DeptModel(TimestampMixin, Model):
     __tablename__ = "system_dept"
     __table_args__ = ({'comment': '部门表'})
 
+    id = Column(BIGINT, primary_key=True, autoincrement=True, unique=True, comment='主键ID', nullable=False)
     name = Column(String(40), nullable=False, comment="部门名称")
     order = Column(Integer, nullable=False, default=1, comment="显示排序")
     available = Column(Boolean, nullable=False, default=True, comment="是否可用")
     parent_id = Column(
         BIGINT,
-        ForeignKey("system_dept.id", ondelete="CASCADE", onupdate="RESTRICT"),
+        ForeignKey("system_dept.id", ondelete="CASCADE", onupdate="CASCADE"),
         nullable=True, index=True, comment="父级部门ID"
     )
+    description = Column(Text, nullable=True, comment="备注")
 
     parent = relationship("DeptModel", cascade='all, delete-orphan', uselist=False)
 
@@ -107,17 +112,17 @@ class UserModel(CustomMixin, Model):
     mobile = Column(String(20), nullable=True, comment="手机号")
     email = Column(String(255), nullable=True, comment="邮箱")
     gender = Column(Integer, default=1, nullable=False, comment="性别")
-    avatar = Column(String(255), nullable=True, comment="头像")
+    avatar = Column(String(255), nullable=True, comment="头像", default="https://gw.alipayobjects.com/zos/rmsportal/BiazfanxmamNRoxxVxka.png")
     available = Column(Boolean, default=True, nullable=False, comment="是否可用")
     is_superuser = Column(Boolean, default=False, nullable=False, comment="是否超管")
     last_login = Column(DateTime, nullable=True, comment="最近登录时间")
     dept_id = Column(
         BIGINT,
-        ForeignKey('system_dept.id', ondelete="SET NULL", onupdate="RESTRICT"),
+        ForeignKey('system_dept.id', ondelete="SET NULL", onupdate="CASCADE"),
         nullable=True, index=True, comment="部门ID"
     )
 
-    dept = relationship('DeptModel', primaryjoin="UserModel.dept_id == DeptModel.id", uselist=False)
+    dept = relationship('DeptModel', primaryjoin="UserModel.dept_id == DeptModel.id", lazy="select", uselist=False)
     roles = relationship("RoleModel", secondary=UserRolesModel.__tablename__, lazy="joined", uselist=True)
     positions = relationship("PositionModel", secondary=UserPositionsModel.__tablename__, lazy="joined", uselist=True)
 

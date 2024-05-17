@@ -11,7 +11,7 @@ from fastapi import status
 from app.models.base import Model
 from app.schemas.system import Auth
 from app.core.exceptions import CustomException
-from app.models.system import UserModel
+from app.models.system import UserModel, DeptModel
 
 
 Total = NewType("Total", int)
@@ -26,6 +26,7 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
     """
     def __init__(self, model: ModelType, auth: Auth) -> None:
         self.model = model
+        self.auth = auth
         self.session = auth.session
         self.current_user = auth.user
 
@@ -38,7 +39,7 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
                 selectinload(self.model.creator)
             )
 
-        sql = self.filter_permissions(sql)
+        sql = await self.filter_permissions(sql)
 
         result: Result = await self.session.execute(sql)
         obj = result.scalars().unique().first()
@@ -64,7 +65,8 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
                 selectinload(self.model.creator)
             )
 
-        sql = self.filter_permissions(sql).order_by(*self.get_order_columns(order))
+        sql = await self.filter_permissions(sql)
+        sql = sql.order_by(*self.get_order_columns(order))
 
         result: Result = await self.session.execute(sql)
         data = result.scalars().unique().all()
@@ -75,10 +77,13 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
         obj_dict = obj_in if isinstance(obj_in, Dict) else obj_in.model_dump()
         obj = self.model(**obj_dict)
 
+        if hasattr(self.model, "creator") and self.current_user:
+            creator = await CRUDBase(UserModel, self.auth).get(id=self.current_user.id)
+            obj.creator = creator
+
         self.session.add(obj)
         await self.session.flush()
         await self.session.refresh(obj)
-
         return obj
 
     async def update(self, id: int, obj_in: Union[UpdateSchemaType, Dict]) -> ModelType:
@@ -94,7 +99,7 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
 
     async def delete(self, ids: List[int]) -> None:
         sql = delete(self.model).where(self.model.id.in_(ids))
-        sql = self.filter_permissions(sql)
+        sql = await self.filter_permissions(sql)
 
         await self.session.execute(sql)
         await self.session.flush()
@@ -116,8 +121,8 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
 
         return columns
 
-    def filter_permissions(self, sql: Select[Any]) -> Select[Any]:
-        if self.current_user is None:
+    async def filter_permissions(self, sql: Select[Any]) -> Select[Any]:
+        if self.current_user is None or not self.auth.check_data_scope:
             return sql
 
         if not hasattr(self.model, "creator"):
@@ -135,10 +140,24 @@ class CRUDBase(Generic[ModelType, CreateSchemaType, UpdateSchemaType]):
             for dept in role.depts:
                 dept_ids.add(dept.id)
 
+            data_scopes.add(role.data_scope)
+
         if 1 in data_scopes:
             return sql.where(self.model.creator_id == self.current_user.id)
 
-        if 3 in data_scopes:
+        if 4 in data_scopes:
+            return sql
+
+        if 2 in data_scopes:
             dept_ids.add(self.current_user.dept_id)
+
+        if 3 in data_scopes:
+            from app.utils.tools import get_child_id_map, get_child_recursion
+
+            dept_objs = await CRUDBase(DeptModel, self.auth).list()
+            id_map = get_child_id_map(dept_objs)
+            dept_child_ids = get_child_recursion(id=self.current_user.dept_id, id_map=id_map)
+            for child_id in dept_child_ids:
+                dept_ids.add(child_id)
 
         return sql.where(self.model.creator.has(UserModel.dept_id.in_(list(dept_ids))))

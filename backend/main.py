@@ -11,7 +11,11 @@ from app.core.init_app import (
     register_routers,
     reset_swagger
 )
-import uvicorn
+import uvicorn, typer
+from app.scripts.initialize import InitializeData
+
+
+shell_app = typer.Typer()
 
 
 def create_app() -> FastAPI:
@@ -34,7 +38,8 @@ def create_app() -> FastAPI:
     return app
 
 
-if __name__ == '__main__':
+@shell_app.command()
+def run():
     uvicorn.run(
         app='main:create_app',
         host=settings.SERVER_HOST,
@@ -42,3 +47,16 @@ if __name__ == '__main__':
         lifespan="on",
         factory=True
     )
+
+
+@shell_app.command()
+def init():
+    """
+    初始化数据
+    """
+    data = InitializeData()
+    data.run()
+
+
+if __name__ == '__main__':
+    shell_app()

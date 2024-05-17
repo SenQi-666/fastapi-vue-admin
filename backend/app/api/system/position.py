@@ -39,11 +39,11 @@ async def get_position_detail(
     return SuccessResponse(data)
 
 
-@router.post("/options", summary="查询岗位选项", description="查询岗位选项")
+@router.get("/options", summary="查询岗位选项", description="查询岗位选项")
 async def get_position_options(
         paging_query: PaginationQueryParams = Depends(),
         position_query: PositionQueryParams = Depends(),
-        auth: Auth = Depends(AuthPermission(permissions=["system:position:query"])),
+        auth: Auth = Depends(AuthPermission(permissions=["system:position:options"])),
 ) -> JSONResponse:
     search = position_query.__dict__
     data = await PositionService.get_position_options(search, auth)

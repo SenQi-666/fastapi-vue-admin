@@ -61,3 +61,7 @@ class UserCRUD(CRUDBase[UserModel, UserCreate, UserUpdate]):
                 user_obj.positions.append(position_obj)
 
         await self.session.flush()
+
+    async def change_password(self, id: int, password_hash: str):
+        obj = await self.update(id, obj_in={"password": password_hash})
+        return obj

@@ -22,4 +22,4 @@ class OperationLogCreate(OperationLog):
 
 
 class OperationLogOut(OperationLog, CustomOutSchema):
-    ...
+    model_config = ConfigDict(from_attributes=True)

@@ -1,0 +1,50 @@
+[
+  {
+    "id": 1,
+    "name": "开发部",
+    "parent_id": null,
+    "available": true,
+    "description": null,
+    "order": 1
+  },
+  {
+    "id": 2,
+    "name": "运营部",
+    "parent_id": null,
+    "available": true,
+    "description": null,
+    "order": 2
+  },
+  {
+    "id": 3,
+    "name": "人事部",
+    "parent_id": null,
+    "available": true,
+    "description": null,
+    "order": 3
+  },
+  {
+    "id": 4,
+    "name": "销售部",
+    "parent_id": null,
+    "available": true,
+    "description": null,
+    "order": 4
+  },
+  {
+    "id": 5,
+    "name": "开发一组",
+    "parent_id": 1,
+    "available": true,
+    "description": null,
+    "order": 1
+  },
+  {
+    "id": 6,
+    "name": "开发二组",
+    "parent_id": 1,
+    "available": true,
+    "description": null,
+    "order": 2
+  }
+]

@@ -3,7 +3,7 @@
 
 from typing import Optional, List
 from pydantic import BaseModel, ConfigDict
-from app.schemas.base import CustomOutSchema
+from app.schemas.base import TimestampOutSchema
 
 
 class Dept(BaseModel):
@@ -33,7 +33,7 @@ class DeptOut(Dept):
     available: Optional[bool]
 
 
-class DeptSimpleOut(Dept, CustomOutSchema):
+class DeptSimpleOut(Dept, TimestampOutSchema):
     available: Optional[bool]
 
 
@@ -42,6 +42,4 @@ class DeptOptionsOut(BaseModel):
 
     id: int
     name: str
-    order: Optional[int] = 1
     parent_id: Optional[int] = None
-    available: Optional[bool]

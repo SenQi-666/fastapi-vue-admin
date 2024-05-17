@@ -3,9 +3,12 @@
 
 from typing import Any, List, Dict, Sequence, Optional
 import importlib, uuid
+from pathlib import Path
 from app.crud.base import ModelType
-from app.models.system import DeptModel
+from app.models.base import Model
 from sqlalchemy.sql.elements import ColumnElement
+from fastapi import UploadFile
+from app.core.config import settings
 
 
 def import_module(module: str) -> Any:
@@ -45,6 +48,9 @@ def dict_to_search_sql(model: ModelType, search: Dict) -> List[ColumnElement]:
             sql_where.append(getattr(model, key).in_(value))
 
         if seq == "between":
+            start, end = value
+            if not start or not end:
+                continue
             sql_where.append(getattr(model, key).between(*value))
 
         if seq is None:
@@ -61,72 +67,97 @@ def get_random_character() -> str:
     return uuid.uuid4().hex
 
 
-def get_dept_enable_id_map(dept_list: Sequence[DeptModel]) -> Dict[int, int]:
+def get_parent_id_map(model_list: Sequence[Model]) -> Dict[int, int]:
     """
-    递归启用部门ID的映射集
-    :param dept_list: 部门模型数组
+    获取父级ID的映射集
+    :param model_list: 模型数组
     :return: 映射集字典
     """
-    data_map = {item.id: item.parent_id for item in dept_list}
+    data_map = {item.id: item.parent_id for item in model_list}
     return data_map
 
 
-def get_dept_enable_recursion(
-        dept_id: int,
-        dept_id_map: Dict[int, int],
-        dept_ids: Optional[List[int]] = None
+def get_parent_recursion(
+        id: int,
+        id_map: Dict[int, int],
+        ids: Optional[List[int]] = None
 ) -> List[int]:
     """
-    递归获取启用的部门ID数组
-    :param dept_id: 部门ID
-    :param dept_id_map: 部门ID的映射集
-    :param dept_ids: 部门ID数组
-    :return: 启用的部门ID数组
+    递归获取某ID的所有父级的ID数组
+    :param id: ID
+    :param id_map: ID的映射集
+    :param ids: ID数组
+    :return: 所有父级的ID数组
     """
-    if dept_ids is None:
-        dept_ids = []
+    if ids is None:
+        ids = []
 
-    dept_ids.append(dept_id)
-    parent_id = dept_id_map.get(dept_id)
+    ids.append(id)
+    parent_id = id_map.get(id)
     if parent_id:
-        get_dept_enable_recursion(parent_id, dept_id_map, dept_ids)
+        get_parent_recursion(parent_id, id_map, ids)
 
-    return dept_ids
+    return ids
 
 
-def get_dept_disable_id_map(dept_list: Sequence[DeptModel]) -> Dict[int, List[int]]:
+def get_child_id_map(model_list: Sequence[Model]) -> Dict[int, List[int]]:
     """
-    递归禁用部门ID的映射集
-    :param dept_list: 部门模型数组
+    获取子级ID的映射集
+    :param model_list: 模型数组
     :return: 映射集字典
     """
     data_map = {}
-    for dept in dept_list:
-        data_map.setdefault(dept.id, [])
-        if dept.parent_id:
-            data_map.setdefault(dept.parent_id, []).append(dept.id)
+    for model in model_list:
+        data_map.setdefault(model.id, [])
+        if model.parent_id:
+            data_map.setdefault(model.parent_id, []).append(model.id)
 
     return data_map
 
 
-def get_dept_disable_recursion(
-        dept_id: int,
-        dept_id_map: Dict[int, List[int]],
-        dept_ids: Optional[List[int]] = None
+def get_child_recursion(
+        id: int,
+        id_map: Dict[int, List[int]],
+        ids: Optional[List[int]] = None
 ) -> List[int]:
     """
-    递归获取禁用的部门ID数组
-    :param dept_id: 部门ID
-    :param dept_id_map: 部门ID的映射集
-    :param dept_ids: 部门ID数组
-    :return: 禁用的部门ID数组
+    递归获取某ID的所有子级的ID数组
+    :param id: ID
+    :param id_map: ID的映射集
+    :param ids: ID数组
+    :return: 所有子级的ID数组
     """
-    if dept_ids is None:
-        dept_ids = []
+    if ids is None:
+        ids = []
 
-    dept_ids.append(dept_id)
-    child_ids = dept_id_map.get(dept_id, [])
+    ids.append(id)
+    child_ids = id_map.get(id, [])
     for child in child_ids:
-        get_dept_disable_recursion(child, dept_id_map, dept_ids)
+        get_child_recursion(child, id_map, ids)
 
-    return dept_ids
+    return ids
+
+
+async def upload_image(file: UploadFile, dirname: str) -> Optional[str]:
+    """
+    图片上传
+    :param file: 文件对象
+    :param dirname: 文件目录
+    :return: 图片链接
+    """
+    if 'image' not in file.content_type:
+        return
+
+    image_type = file.content_type.split('/')[1]
+    image_name = f'{uuid.uuid4().hex}.{image_type}'
+
+    image_path = Path(f'{settings.STATIC_ROOT}/{dirname}')
+    if not image_path.exists():
+        image_path.mkdir(parents=True, exist_ok=True)
+
+    image_path = f'{settings.STATIC_ROOT}/{dirname}/{image_name}'
+    with open(image_path, 'wb') as f:
+        f.write(await file.read())
+
+    image_url = f'{settings.STATIC_DIR}/{dirname}/{image_name}'
+    return image_url

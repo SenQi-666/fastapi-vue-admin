@@ -4,6 +4,7 @@
 from typing import Optional
 from fastapi import Query
 from app.core.validator import DateTimeStr
+from datetime import datetime
 
 
 class PaginationQueryParams:
@@ -13,7 +14,7 @@ class PaginationQueryParams:
     def __init__(
             self,
             page: int = Query(1, description="页码"),
-            page_size: int = Query(10, description="每页数量", ge=10, le=50)
+            page_size: int = Query(10, description="每页数量", ge=10, le=100)
     ) -> None:
         self.page = page
         self.page_size = page_size
@@ -22,14 +23,6 @@ class PaginationQueryParams:
 class MenuQueryParams:
     """
     菜单管理查询参数
-    """
-    def __init__(self, available: Optional[bool] = Query(True, description="状态")) -> None:
-        self.available = available
-
-
-class DeptQueryParams:
-    """
-    部门管理查询参数
     """
     def __init__(self, available: Optional[bool] = Query(True, description="状态")) -> None:
         self.available = available
@@ -75,9 +68,6 @@ class UserQueryParams:
         self.name = ("like", name)
         self.available = available
 
-    def function(self, value):
-        return value
-
 
 class LogQueryParams:
     """
@@ -92,4 +82,7 @@ class LogQueryParams:
     ) -> None:
         self.request_path = ("like", request_path)
         self.creator_id = creator
-        self.created_at = ("between", (start_time, end_time))
+        if start_time and end_time:
+            start_datetime = datetime.strptime(start_time, '%Y-%m-%d %H:%M:%S')
+            end_datetime = datetime.strptime(end_time, '%Y-%m-%d %H:%M:%S')
+            self.created_at = ("between", (start_datetime, end_datetime))

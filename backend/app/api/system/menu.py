@@ -4,7 +4,6 @@
 from fastapi import APIRouter, Depends, Query
 from fastapi.responses import JSONResponse
 from app.core.router_class import OperationLogRoute
-from app.core.params import MenuQueryParams
 from app.core.dependencies import AuthPermission
 from app.services.system import MenuService
 from app.utils.response import SuccessResponse
@@ -21,11 +20,9 @@ router = APIRouter(route_class=OperationLogRoute)
 
 @router.get("/list", summary="查询菜单", description="查询菜单")
 async def get_menu_list(
-        menu_query: MenuQueryParams = Depends(),
         auth: Auth = Depends(AuthPermission(permissions=["system:menu:query"], check_data_scope=False)),
 ) -> JSONResponse:
-    search = menu_query.__dict__
-    data = await MenuService.get_menu_list(search, auth)
+    data = await MenuService.get_menu_list(auth)
     return SuccessResponse(data)
 
 
@@ -38,13 +35,11 @@ async def get_menu_detail(
     return SuccessResponse(data)
 
 
-@router.post("/options", summary="查询菜单选项", description="查询菜单选项")
+@router.get("/options", summary="查询菜单选项", description="查询菜单选项")
 async def get_menu_options(
-        menu_query: MenuQueryParams = Depends(),
-        auth: Auth = Depends(AuthPermission(permissions=["system:menu:query"], check_data_scope=False)),
+        auth: Auth = Depends(AuthPermission(permissions=["system:menu:options"], check_data_scope=False)),
 ) -> JSONResponse:
-    search = menu_query.__dict__
-    data = await MenuService.get_menu_options(search, auth)
+    data = await MenuService.get_menu_options(auth)
     return SuccessResponse(data)
 
 
@@ -80,7 +75,7 @@ async def batch_enabled_menu(
         data: MenuBatchSetAvailable,
         auth: Auth = Depends(AuthPermission(permissions=["system:menu:update"], check_data_scope=False)),
 ) -> JSONResponse:
-    await MenuService.set_menu_available(data.ids, available=True, auth=auth)
+    await MenuService.enable_menu(data.ids, auth=auth)
     return SuccessResponse(msg="启用成功")
 
 
@@ -89,5 +84,5 @@ async def batch_disable_menu(
         data: MenuBatchSetAvailable,
         auth: Auth = Depends(AuthPermission(permissions=["system:menu:update"], check_data_scope=False)),
 ) -> JSONResponse:
-    await MenuService.set_menu_available(data.ids, available=False, auth=auth)
+    await MenuService.disable_menu(data.ids, auth=auth)
     return SuccessResponse(msg="停用成功")

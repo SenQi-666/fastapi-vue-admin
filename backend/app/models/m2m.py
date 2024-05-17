@@ -11,12 +11,12 @@ class RoleMenusModel(Model):
 
     role_id = Column(
         BIGINT,
-        ForeignKey("system_role.id", ondelete="CASCADE", onupdate="RESTRICT"),
+        ForeignKey("system_role.id", ondelete="CASCADE", onupdate="CASCADE"),
         primary_key=True, comment="角色ID"
     )
     menu_id = Column(
         BIGINT,
-        ForeignKey("system_menu.id", ondelete="CASCADE", onupdate="RESTRICT"),
+        ForeignKey("system_menu.id", ondelete="CASCADE", onupdate="CASCADE"),
         primary_key=True, comment="菜单ID"
     )
 
@@ -27,12 +27,12 @@ class RoleDeptsModel(Model):
 
     role_id = Column(
         BIGINT,
-        ForeignKey("system_role.id", ondelete="CASCADE", onupdate="RESTRICT"),
+        ForeignKey("system_role.id", ondelete="CASCADE", onupdate="CASCADE"),
         primary_key=True, comment="角色ID"
     )
     dept_id = Column(
         BIGINT,
-        ForeignKey("system_dept.id", ondelete="CASCADE", onupdate="RESTRICT"),
+        ForeignKey("system_dept.id", ondelete="CASCADE", onupdate="CASCADE"),
         primary_key=True, comment="部门ID"
     )
 
@@ -43,12 +43,12 @@ class UserPositionsModel(Model):
 
     user_id = Column(
         BIGINT,
-        ForeignKey("system_user.id", ondelete="CASCADE", onupdate="RESTRICT"),
+        ForeignKey("system_user.id", ondelete="CASCADE", onupdate="CASCADE"),
         primary_key=True, comment="用户ID"
     )
     position_id = Column(
         BIGINT,
-        ForeignKey("system_position.id", ondelete="CASCADE", onupdate="RESTRICT"),
+        ForeignKey("system_position.id", ondelete="CASCADE", onupdate="CASCADE"),
         primary_key=True, comment="岗位ID"
     )
 
@@ -59,11 +59,11 @@ class UserRolesModel(Model):
 
     user_id = Column(
         BIGINT,
-        ForeignKey("system_user.id", ondelete="CASCADE", onupdate="RESTRICT"),
+        ForeignKey("system_user.id", ondelete="CASCADE", onupdate="CASCADE"),
         primary_key=True, comment="用户ID"
     )
     role_id = Column(
         BIGINT,
-        ForeignKey("system_role.id", ondelete="CASCADE", onupdate="RESTRICT"),
+        ForeignKey("system_role.id", ondelete="CASCADE", onupdate="CASCADE"),
         primary_key=True, comment="角色ID"
     )

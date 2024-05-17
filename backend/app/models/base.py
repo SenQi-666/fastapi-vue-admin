@@ -1,9 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from typing import Any
 from sqlalchemy import Column, BIGINT, Text, DateTime, ForeignKey
-from sqlalchemy.orm import relationship, Relationship
+from sqlalchemy.orm import relationship
 from sqlalchemy.ext.declarative import declarative_base, declared_attr
 from datetime import datetime
 
@@ -27,10 +26,10 @@ class CustomMixin(TimestampMixin):
     def creator_id(cls):
         return Column(
             BIGINT,
-            ForeignKey("system_user.id", ondelete="SET NULL", onupdate="RESTRICT"),
+            ForeignKey("system_user.id", ondelete="SET NULL", onupdate="CASCADE"),
             nullable=True, index=True, comment="创建人"
         )
 
     @declared_attr
     def creator(cls):
-        return relationship("UserModel", foreign_keys=cls.creator_id, uselist=False)
+        return relationship("UserModel", foreign_keys=cls.creator_id, lazy="selectin", uselist=False)

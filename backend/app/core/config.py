@@ -14,10 +14,18 @@ class Settings(BaseSettings):
     # 调试模式 安全警告：不要在生产环境中打开调试运行！
     DEBUG: bool = True
 
+    # 是否开启演示功能：取消所有POST,DELETE,PUT操作权限
+    DEMO: bool = False
+    # 演示功能白名单
+    DEMO_WHITE_LIST_PATH: List[str] = [
+        "/api/system/auth/login",
+        "/api/system/auth/token/refresh"
+    ]
+
     # 主机IP
     SERVER_HOST: str = "0.0.0.0"
     # 主机端口
-    SERVER_PORT: int = 8000
+    SERVER_PORT: int = 8080
 
     # 接口路由前缀
     API_PREFIX: str = "/api"
@@ -26,7 +34,7 @@ class Settings(BaseSettings):
     # ******************* API文档配置 ****************** #
     # ================================================= #
     # 文档标题
-    TITLE: str = "Fastapi React Admin Application"
+    TITLE: str = "Fastapi Vue Admin Application"
     # 版本号
     VERSION: str = "0.1.0"
     # 文档描述, 支持 Markdown 语法
@@ -62,7 +70,7 @@ class Settings(BaseSettings):
     # 用于设定 JWT 令牌签名算法
     ALGORITHM: str = "HS256"
     # access_token 过期时间
-    ACCESS_TOKEN_EXPIRE_MINUTES: int = 60 * 24 * 5
+    ACCESS_TOKEN_EXPIRE_MINUTES: int = 60 * 24
     # refresh_token 过期时间
     REFRESH_TOKEN_EXPIRE_MINUTES: int = 60 * 24 * 7
 
@@ -82,7 +90,7 @@ class Settings(BaseSettings):
     # ***************** 临时文件目录配置 ***************** #
     # ================================================= #
     # 是否启用临时文件目录访问
-    TEMP_ENABLE: bool = True
+    TEMP_ENABLE: bool = False
     # 路由访问
     TEMP_URL: str = "/temp"
     # 临时文件目录名
@@ -94,10 +102,10 @@ class Settings(BaseSettings):
     # ******************** 数据库配置 ******************* #
     # ================================================= #
     SQL_DB_ENABLE: bool = True
-    SQL_DB_URL: Union[PostgresDsn, MySQLDsn] = "postgresql+asyncpg://postgres:senqi1010@192.168.222.18:5432/fastapi_react_admin"
+    SQL_DB_URL: Union[PostgresDsn, MySQLDsn] = "postgresql+asyncpg://postgres:senqi1010@127.0.0.1:5432/fastapi_vue_admin"
 
     REDIS_ENABLE: bool = True
-    REDIS_URL: RedisDsn = "redis://192.168.222.18:6379/4"
+    REDIS_URL: RedisDsn = "redis://127.0.0.1:6379/0"
 
     # ================================================= #
     # ******************** 验证码配置 ******************* #
@@ -124,7 +132,8 @@ class Settings(BaseSettings):
     # ================================================= #
     MIDDLEWARE: List[Optional[str]] = [
         "app.core.middlewares.CustomCORSMiddleware" if CORS_ORIGIN_ENABLE else None,
-        "app.core.middlewares.RequestLogMiddleware" if REQUEST_LOG_RECORD else None
+        "app.core.middlewares.RequestLogMiddleware" if REQUEST_LOG_RECORD else None,
+        "app.core.middlewares.DemoEnvMiddleware" if DEMO else None,
     ]
 
     @property

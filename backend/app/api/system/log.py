@@ -7,7 +7,7 @@ from app.core.router_class import OperationLogRoute
 from app.core.params import PaginationQueryParams, LogQueryParams
 from app.core.dependencies import AuthPermission
 from app.services.system import LogService
-from app.utils.response import SuccessResponse, PaginationResponse
+from app.utils.response import PaginationResponse
 from app.schemas.system import Auth
 
 

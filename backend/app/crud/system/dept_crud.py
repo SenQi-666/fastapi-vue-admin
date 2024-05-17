@@ -24,7 +24,7 @@ class DeptCRUD(CRUDBase[DeptModel, DeptCreate, DeptUpdate]):
         sql_where = dict_to_search_sql(self.model, search) if search else []
         return await self.list(search=sql_where, order=order)
 
-    async def set_menu_available(self, ids: List[int], available: bool) -> None:
+    async def set_dept_available(self, ids: List[int], available: bool) -> None:
         sql = update(self.model).where(self.model.id.in_(ids)).values(available=available)
         await self.session.execute(sql)
         await self.session.flush()

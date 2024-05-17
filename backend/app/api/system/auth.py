@@ -37,6 +37,7 @@ async def login_for_access_token(
 @router.post("/token/refresh", response_model=JWTOut, summary="刷新token", description="刷新token")
 async def get_new_token(payload: RefreshTokenPayload) -> JSONResponse:
     new_token = await LoginService.refresh_token(payload.refresh_token)
+    # return ErrorResponse(msg='测试异常', status_code=400)
     return SuccessResponse(new_token.model_dump(), msg="刷新成功")
 
 

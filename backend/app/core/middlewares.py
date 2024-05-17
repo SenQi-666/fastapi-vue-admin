@@ -11,6 +11,7 @@ from starlette.middleware.base import (
     BaseHTTPMiddleware,
     RequestResponseEndpoint
 )
+from app.utils.response import ErrorResponse
 import time
 
 
@@ -41,3 +42,17 @@ class RequestLogMiddleware(BaseHTTPMiddleware):
         process_time = response.headers["X-Process-Time"]
         content = f"'{request.method} {request.url} {http_version}' {response.status_code} {content_length} {process_time}"
         logger.info(content)
+
+
+class DemoEnvMiddleware(BaseHTTPMiddleware):
+    def __init__(self, app: ASGIApp) -> None:
+        super(DemoEnvMiddleware, self).__init__(app)
+
+    async def dispatch(
+            self, request: Request, call_next: RequestResponseEndpoint
+    ) -> Response:
+        path = request.scope.get("path")
+        if settings.DEMO and request.method != "GET" and path not in settings.DEMO_WHITE_LIST_PATH:
+            return ErrorResponse(msg="演示环境，禁止操作")
+
+        return await call_next(request)

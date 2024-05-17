@@ -4,7 +4,7 @@
 from typing import Optional, List
 from pydantic import BaseModel, model_validator, ConfigDict
 from app.core.validator import menu_request_validator
-from app.schemas.base import CustomOutSchema
+from app.schemas.base import TimestampOutSchema
 
 
 class Menu(BaseModel):
@@ -16,6 +16,7 @@ class Menu(BaseModel):
     route_name: Optional[str] = None
     route_path: Optional[str] = None
     component_path: Optional[str] = None
+    redirect: Optional[str] = None
     parent_id: Optional[int] = None
     parent_name: Optional[str] = None
     cache: Optional[bool] = True
@@ -41,7 +42,7 @@ class MenuBatchSetAvailable(BaseModel):
     ids: List[int] = []
 
 
-class MenuOut(CustomOutSchema):
+class MenuOut(TimestampOutSchema):
     name: str
     type: int
     icon: Optional[str] = ""
@@ -51,9 +52,10 @@ class MenuOut(CustomOutSchema):
     available: Optional[bool]
 
 
-class MenuSimpleOut(Menu):
+class MenuSimpleOut(Menu, TimestampOutSchema):
     model_config = ConfigDict(from_attributes=True)
 
+    id: int
     available: Optional[bool]
 
 
@@ -63,7 +65,7 @@ class MenuOptionsOut(BaseModel):
     id: int
     name: str
     type: int
-    order: Optional[int] = 1
     permission: Optional[str] = ""
     parent_id: Optional[int] = None
+    description: Optional[str] = None
     available: Optional[bool]

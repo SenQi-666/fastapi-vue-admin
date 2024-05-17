@@ -30,9 +30,9 @@ async def get_current_user(
     token_payload = decode_jwt_token(token)
     if token_payload.is_refresh:
         raise CustomException(
-            msg="非法token",
+            msg="非法凭证",
             code=status.HTTP_403_FORBIDDEN,
-            status_code=status.HTTP_403_FORBIDDEN
+            status_code=status.HTTP_403_FORBIDDEN,
         )
 
     auth = Auth(session=session)
@@ -43,7 +43,6 @@ async def get_current_user(
         raise CustomException(
             msg="用户已被停用",
             code=status.HTTP_403_FORBIDDEN,
-            status_code=status.HTTP_403_FORBIDDEN
         )
 
     request.scope["user_id"] = user.id
@@ -85,8 +84,7 @@ class AuthPermission:
         if len(self.permissions) != len(self.permissions & permissions):
             raise CustomException(
                 msg="无权限操作",
-                code=status.HTTP_403_FORBIDDEN,
-                status_code=status.HTTP_403_FORBIDDEN
+                code=status.HTTP_403_FORBIDDEN
             )
 
         return auth

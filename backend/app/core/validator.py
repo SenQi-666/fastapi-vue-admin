@@ -31,8 +31,8 @@ def datetime_validator(value: Union[str, datetime]) -> Union[str, datetime, None
 
 # 实现自定义一个日期时间字符串的数据类型
 DateTimeStr = Annotated[
-    Union[str, datetime],
-    AfterValidator(datetime_validator),
+    datetime,
+    AfterValidator(lambda x: x.strftime("%Y-%m-%d %H:%M:%S")),
     PlainSerializer(lambda x: x, return_type=str),
     WithJsonSchema({'type': 'string'}, mode='serialization')
 ]

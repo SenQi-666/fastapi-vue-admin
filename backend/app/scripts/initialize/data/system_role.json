@@ -1,0 +1,38 @@
+[
+  {
+    "id": 1,
+    "name": "管理员",
+    "data_scope": 4,
+    "available": true,
+    "description": null,
+    "order": 1,
+    "creator_id": 1
+  },
+  {
+    "id": 2,
+    "name": "董事长",
+    "data_scope": 5,
+    "available": true,
+    "description": null,
+    "order": 2,
+    "creator_id": 1
+  },
+  {
+    "id": 3,
+    "name": "运营主管",
+    "data_scope": 2,
+    "available": true,
+    "description": null,
+    "order": 3,
+    "creator_id": 1
+  },
+  {
+    "id": 4,
+    "name": "运营人员",
+    "data_scope": 1,
+    "available": true,
+    "description": null,
+    "order": 4,
+    "creator_id": 1
+  }
+]

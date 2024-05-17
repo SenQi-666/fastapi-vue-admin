@@ -1,0 +1,10 @@
+{
+  "compilerOptions": {
+    // 添加 node，防止 build 报错找不到 path
+    "types": ["node"],
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["src/*"]
+    }
+  }
+}

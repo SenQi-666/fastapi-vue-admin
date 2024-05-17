@@ -29,9 +29,9 @@ class CustomOAuth2PasswordBearer(OAuth2PasswordBearer):
         if not authorization or scheme.lower() != "bearer":
             if self.auto_error:
                 raise CustomException(
-                    msg="请先登录",
+                    msg="请登陆后再试",
                     code=status.HTTP_401_UNAUTHORIZED,
-                    status_code=status.HTTP_401_UNAUTHORIZED,
+                    status_code=status.HTTP_401_UNAUTHORIZED
                 )
             else:
                 return None
@@ -77,28 +77,32 @@ def decode_jwt_token(token: str) -> JWTPayload:
     if not token:
         raise CustomException(
             msg="请登陆后再试",
-            code=status.HTTP_403_FORBIDDEN,
-            status_code=status.HTTP_403_FORBIDDEN
+            code=status.HTTP_401_UNAUTHORIZED,
+            status_code=status.HTTP_401_UNAUTHORIZED
         )
 
-    exception_msg = None
     try:
         payload = jwt.decode(token, settings.SECRET_KEY, algorithms=settings.ALGORITHM)
         username: str = payload.get("sub")
         if username is None:
-            exception_msg = "未认证，请您重新登录"
+            raise CustomException(
+                msg="请登陆后再试",
+                code=status.HTTP_401_UNAUTHORIZED,
+                status_code=status.HTTP_401_UNAUTHORIZED
+            )
+
+        return JWTPayload(**payload)
 
     except (jwt.InvalidSignatureError, jwt.DecodeError):
-        exception_msg = "无效认证，请重新登录"
-
-    except jwt.ExpiredSignatureError:
-        exception_msg = "认证已过期，请重新登录"
-
-    if exception_msg:
         raise CustomException(
-            msg=exception_msg,
+            msg="无效认证，请重新登录",
             code=status.HTTP_403_FORBIDDEN,
             status_code=status.HTTP_403_FORBIDDEN
         )
 
-    return JWTPayload(**payload)
+    except jwt.ExpiredSignatureError:
+        raise CustomException(
+            msg="认证已过期，请重新登录",
+            code=status.HTTP_401_UNAUTHORIZED,
+            status_code=status.HTTP_401_UNAUTHORIZED
+        )

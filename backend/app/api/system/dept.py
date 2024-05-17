@@ -7,7 +7,6 @@ from app.core.router_class import OperationLogRoute
 from app.core.dependencies import AuthPermission
 from app.services.system import DeptService
 from app.utils.response import SuccessResponse
-from app.core.params import DeptQueryParams
 from app.schemas.system import (
     Auth,
     DeptCreate,
@@ -36,13 +35,11 @@ async def get_dept_detail(
     return SuccessResponse(data)
 
 
-@router.post("/options", summary="查询部门选项", description="查询部门选项")
+@router.get("/options", summary="查询部门选项", description="查询部门选项")
 async def get_dept_options(
-        dept_query: DeptQueryParams = Depends(),
-        auth: Auth = Depends(AuthPermission(permissions=["system:dept:query"])),
+        auth: Auth = Depends(AuthPermission(permissions=["system:dept:options"])),
 ) -> JSONResponse:
-    search = dept_query.__dict__
-    data = await DeptService.get_dept_options(search, auth)
+    data = await DeptService.get_dept_options(auth)
     return SuccessResponse(data)
 
 
