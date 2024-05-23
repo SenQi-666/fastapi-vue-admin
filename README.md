@@ -32,7 +32,7 @@ PC端演示地址：https://fastapi-vue-admin.senqiweb.cn
 
 ### 获取代码
 
-> git clone https://gitee.com/senqi666/fastapi-vue-admin.git
+> git clone https://github.com/SenQi-666/fastapi-vue-admin.git
 
 ### 准备工作
 
