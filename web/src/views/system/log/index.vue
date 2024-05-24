@@ -84,7 +84,7 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, reactive, onMounted, computed, unref } from 'vue';
+import { ref, reactive, onMounted } from 'vue';
 import PageHeader from '@/components/PageHeader.vue';
 import type { TableColumnsType } from 'ant-design-vue';
 import { getLogList } from '@/api/log'
@@ -98,7 +98,7 @@ const detailStateLoading = ref(false);
 const openModal = ref(false);
 const selectorModal = ref();
 const formState: searchDataType = reactive({});
-const detailState = ref<tableDataType>({})
+const detailState = ref<tableDataType>()
 const pagination = reactive({
   current: 1,
   pageSize: 10,
@@ -185,13 +185,14 @@ const loadingData = () => {
     pagination.total = result.total;
     tableLoading.value = false;
   }).catch(error => {
+    console.log(error);
     tableLoading.value = false;
   })
 }
 
 onMounted(() => loadingData());
 
-const onFinish = (values: any) => {
+const onFinish = () => {
   pagination.current = 1;
   loadingData();
 };
@@ -229,7 +230,7 @@ const selectModalHandle = () => {
 }
 
 const handleSelectorModalEvent = (selectedSelectorRowKeys?: creatorTableDataType['id'][], selectedSelectorRowName?: creatorTableDataType['name']) => {
-  const creator = selectedSelectorRowKeys.length ? selectedSelectorRowKeys[0] : [];
+  const creator = selectedSelectorRowKeys.length ? selectedSelectorRowKeys[0] : undefined;
   const creator_name = selectedSelectorRowName || undefined;
 
   formState.creator = creator;

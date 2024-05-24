@@ -55,12 +55,10 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, reactive, onMounted, computed, unref } from 'vue';
-import PageHeader from '@/components/PageHeader.vue';
+import { ref, reactive, computed, unref } from 'vue';
 import type { TableColumnsType } from 'ant-design-vue';
 import { getUserList } from '@/api/user'
-import { SearchOutlined } from '@ant-design/icons-vue';
-import type { searchDataType, tableDataType, searchCreatorDataType, creatorTableDataType } from './types'
+import type { searchCreatorDataType, creatorTableDataType } from './types'
 
 
 const openModal = ref<boolean>(false);
@@ -123,9 +121,9 @@ const loadingData = () => {
   })
 }
 
-const onFinish = (values: any) => {
-  console.log('Received values of form: ', values);
-  console.log('formState: ', formState);
+const onFinish = () => {
+  pagination.current = 1;
+  loadingData();
 }
 
 const resetFields = () => {
@@ -133,7 +131,8 @@ const resetFields = () => {
       delete formState[key];
   });
   formState.available = "true"
-  console.log(formState)
+  pagination.current = 1;
+  loadingData();
 }
 
 const pagination = reactive({
@@ -144,15 +143,6 @@ const pagination = reactive({
   total: dataSource.value.length,
   showTotal: (total, range) => `第 ${range[0]}-${range[1]} 条 / 总共 ${total} 条`
 })
-
-const handleCreatorSelector = () => {
-  if (!selectedRowKeys.value.length || !selectedRowName.value) {
-    return 
-  }
-  formState.creator = selectedRowKeys.value[0];
-  formState.creator_name = selectedRowName.value;
-  openModal.value = false;
-}
 
 const handleTableChange = (values: any) => {
   pagination.current = values.current;

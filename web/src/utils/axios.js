@@ -97,7 +97,6 @@ request.interceptors.response.use(response => {
       message: '错误',
       description: response.data.message
     })
-    return Promise.reject(error)
   }
   return response
 }, errorHandler)

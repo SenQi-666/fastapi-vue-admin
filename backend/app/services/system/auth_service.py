@@ -98,7 +98,7 @@ class CaptchaService:
     @classmethod
     async def get_captcha(cls, redis: Redis) -> Dict[str, Union[CaptchaKey, CaptchaBase64]]:
         if not settings.CAPTCHA_ENABLE:
-            raise CustomException(msg="未开启验证码服务")
+            raise CustomException(msg="未开启验证码服务", code=status.HTTP_404_NOT_FOUND)
 
         total_strings = string.digits + string.ascii_lowercase
         random_strings = random.sample(list(total_strings), 4)
@@ -131,9 +131,12 @@ class CaptchaService:
         r_client = redis.client()
         captcha_value = await r_client.get(f"captcha:{key}")
         if not captcha_value:
-            raise CustomException(msg="验证码已过期")
+            raise CustomException(msg="验证码已过期", code=status.HTTP_410_GONE)
 
         if captcha != str(captcha_value):
             raise CustomException(msg="验证码错误")
+
+        await r_client.delete(f"captcha:{key}")
+        await r_client.close()
 
         return True

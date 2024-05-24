@@ -398,6 +398,7 @@ const loadingData = () => {
     menuTreeData.value = listToTree(result.data);
     tableLoading.value = false;
   }).catch(error => {
+    console.log(error);
     tableLoading.value = false;
   })
 }
@@ -421,7 +422,7 @@ onMounted(() => {
 
 const selectedRowKeys = ref<tableDataType['id'][]>([]);
 
-const onSelectChange = (selectingRowKeys: tableDataType['id'][], selectingRows: tableDataType[]) => {
+const onSelectChange = (selectingRowKeys: tableDataType['id'][]) => {
   console.log(selectingRowKeys);
   
   selectedRowKeys.value = selectingRowKeys;
@@ -455,7 +456,7 @@ const modalHandle = (modalType: string, record?: tableDataType) => {
   }
 }
 
-const deleteRow = (row) => {
+const deleteRow = (row: tableDataType) => {
   deleteMenu({ id: row.id }).then(response => {
     message.success(response.data.message);
     loadingData();

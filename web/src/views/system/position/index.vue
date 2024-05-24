@@ -231,13 +231,14 @@ const loadingData = () => {
     pagination.total = result.total;
     tableLoading.value = false;
   }).catch(error => {
+    console.log(error);
     tableLoading.value = false;
   })
 }
 
 onMounted(() => loadingData());
 
-const onFinish = (values: any) => {
+const onFinish = () => {
   pagination.current = 1;
   loadingData();
 };
@@ -259,7 +260,7 @@ const handleTableChange = (values: any) => {
 }
 
 
-const onSelectChange = (selectingRowKeys: tableDataType['id'][], selectingRows: tableDataType[]) => {
+const onSelectChange = (selectingRowKeys: tableDataType['id'][]) => {
   selectedRowKeys.value = selectingRowKeys;
 }
 
@@ -346,11 +347,10 @@ const handleModalSumbit = () => {
   }
 }
 
-const deleteRow = (row) => {
+const deleteRow = (row: tableDataType) => {
   deletePosition({ id: row.id }).then(response => {
     message.success(response.data.message);
     loadingData();
-
   }).catch(error => {
     console.log(error)
   })

@@ -111,7 +111,7 @@ class Settings(BaseSettings):
     # ******************** 验证码配置 ******************* #
     # ================================================= #
     # 是否开启登录验证码功能
-    CAPTCHA_ENABLE: bool = False
+    CAPTCHA_ENABLE: bool = True
     # 验证码过期时间
     CAPTCHA_EXPIRE_SECONDS: int = 60
 

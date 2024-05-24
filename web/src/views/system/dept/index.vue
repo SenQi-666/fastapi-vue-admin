@@ -130,14 +130,14 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, reactive, onMounted, h, nextTick } from 'vue';
+import { ref, reactive, onMounted, h } from 'vue';
 import { message, Modal } from 'ant-design-vue';
 import { PlusOutlined, DownOutlined, CheckOutlined, StopOutlined, ArrowsAltOutlined, ShrinkOutlined, SwapOutlined } from '@ant-design/icons-vue';
 import PageHeader from '@/components/PageHeader.vue'
 import { listToTree } from '@/utils/util';
 import { getDeptList, createDept, updateDept, deleteDept, batchEnableDept, batchDisableDept } from '@/api/dept';
 import type { MenuProps } from 'ant-design-vue';
-import type { treeDataType, checkedTreeItemType } from './types';
+import type { treeDataType } from './types';
 import { cloneDeep, isEmpty } from '@/utils/util';
 
 
@@ -183,15 +183,13 @@ const loadingData = () => {
     handleSwitchChange();
     treeLoading.value = false;
   }).catch(error => {
+    console.log(error);
     treeLoading.value = false;
   })
 }
 
 onMounted(() => loadingData());
 
-const modalHandle = () => {
-
-}
 
 const onFinish = () => {
   editFormLoading.value = true;
@@ -289,7 +287,7 @@ const handleActionsClick: MenuProps['onClick'] = e => {
 
   } else {
     // 反选
-    const existsKeys = checkedKeys.value instanceof Array ? checkedKeys.value : checkedKeys.value.checked;
+    const existsKeys = checkedKeys.value instanceof Array ? checkedKeys.value : checkedKeys.value['checked'];
     checkedKeys.value = [];
 
     dataSource.forEach(item => {
@@ -301,7 +299,7 @@ const handleActionsClick: MenuProps['onClick'] = e => {
 }
 
 const handleMoreClick: MenuProps['onClick'] = e => {
-  const existsKeys = checkedKeys.value instanceof Array ? checkedKeys.value : checkedKeys.value.checked;
+  const existsKeys = checkedKeys.value instanceof Array ? checkedKeys.value : checkedKeys.value['checked'];
   if (!existsKeys || !(existsKeys.length > 0) ) {
     message.warning('请先勾选数据');
     return;

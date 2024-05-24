@@ -11,17 +11,16 @@
         <div class="desc">FastAPI Vue Admin 是完全开源的权限管理系统</div>
 
         <div class="login-main" style="width: 330px; margin: 0 auto;">
-          <a-tabs :v-model="activeKey" centered>
+          <a-tabs centered>
             <a-tab-pane :key="1" tab="账户密码登录">
               <a-form
-                :model="formState"
+                :model="loginForm"
                 name="normal_login"
                 class="login-form"
                 @finish="onFinish"
-                @finishFailed="onFinishFailed"
               >
                 <a-form-item name="username" :rules="[{ required: true, message: '用户名是必填项！' }]">
-                  <a-input v-model:value="formState.username" placeholder="用户名: senqi or test">
+                  <a-input v-model:value="loginForm.username" placeholder="用户名: senqi or test">
                     <template #prefix>
                       <UserOutlined class="site-form-item-icon" />
                     </template>
@@ -29,20 +28,28 @@
                 </a-form-item>
 
                 <a-form-item name="password" :rules="[{ required: true, message: '密码是必填项！' }]">
-                  <a-input-password v-model:value="formState.password" placeholder="密码: gitee 或 github 查看">
+                  <a-input-password v-model:value="loginForm.password" placeholder="密码: gitee 或 github 查看">
                     <template #prefix>
                       <LockOutlined class="site-form-item-icon" />
                     </template>
                   </a-input-password>
                 </a-form-item>
 
+                <a-form-item name="captcha" :rules="[{ required: captchaState.enable, message: '验证码是必填项！' }]">
+                  <a-input v-model:value="loginForm.captcha" placeholder="验证码">
+                    <template #addonAfter>
+                      <div class="login-form-captcha" @click="requestCaptcha">
+                        <a-image :src="captchaState.img_base" :preview="false" />
+                      </div>
+                    </template>
+                  </a-input>
+                </a-form-item>
+
                 <a-form-item>
                   <a-form-item name="remember" no-style>
-                    <a-checkbox v-model:checked="formState.remember"
-                      >自动登录</a-checkbox
-                    >
+                    <a-checkbox v-model:checked="loginForm.remember">自动登录</a-checkbox>
                   </a-form-item>
-                  <a class="login-form-forgot" href="">忘记密码 ?</a>
+                  <a class="login-form-forgot">忘记密码 ?</a>
                 </a-form-item>
 
                 <a-form-item>
@@ -50,7 +57,7 @@
                     type="primary"
                     html-type="submit"
                     class="login-form-button"
-                    :loading="logging"
+                    :loading="loginFlag"
                   >
                     登录
                   </a-button>
@@ -66,7 +73,7 @@
           <a-button type="link" href="https://gitee.com/senqi666/fastapi-vue-admin">Fastapi Vue Admin</a-button>
           <a-button type="link" href="https://github.com/SenQi-666/fastapi-vue-admin">
             <span>
-              <icon-font type="icon-github-fill" :style="{ fontSize: '16px' }" />
+              <GithubOutlined />
             </span>
           </a-button>
           <a-button type="link" href="https://gitee.com/senqi666/fastapi-vue-admin">Fastapi Vue Admin</a-button>
@@ -82,15 +89,16 @@
 
 <script lang="ts" setup>
 import type { CSSProperties } from "vue";
-import { ref, reactive } from "vue";
+import { ref, reactive, onMounted } from "vue";
 import { useRouter } from "vue-router";
-import { UserOutlined, LockOutlined } from '@ant-design/icons-vue';
-import { login } from "@/api/auth"
+import { UserOutlined, LockOutlined, GithubOutlined } from '@ant-design/icons-vue';
+import { login, getCaptcha } from "@/api/auth"
+import type { loginFormType, captchaStateType } from './types';
 import { save_token } from "@/utils/util"
 import md5 from "md5"
 
 const router = useRouter()
-const logging = ref(false);
+const loginFlag = ref(false);
 
 const contentStyle: CSSProperties = {
   minHeight: 850,
@@ -103,41 +111,61 @@ const footerStyle: CSSProperties = {
   background: "none",
 };
 
-const activeKey = ref(1);
 
-interface FormState {
-  username: string;
-  password: string;
-  code: string;
-  remember: boolean;
-}
-const formState = reactive<FormState>({
+const loginForm = reactive<loginFormType>({
   username: "",
   password: "",
-  code: "",
-  remember: true,
+  captcha: "",
+  captcha_key: "",
+  remember: true
 });
-const onFinish = (values: FormState) => {
-  logging.value = true;
+
+
+const captchaState = reactive<captchaStateType>({
+  enable: true,
+  key: "",
+  img_base: ""
+});
+
+const onFinish = (values: loginFormType) => {
+  loginFlag.value = true;
 
   values.password = md5(values.password);
+  values.captcha_key = captchaState.key;
   login(values).then(response => {
     let result = response.data;
     if (result.code === 200) {
       save_token(result.data.access_token, result.data.refresh_token, result.data.expires_in)
-      logging.value = false;
+      loginFlag.value = false;
       router.push('/');
+    } else if (result.code === 410) {
+      loginFlag.value = false;
+      requestCaptcha();
     } else {
-      logging.value = false;
+      loginFlag.value = false;
     }
   }).catch(error => {
-    logging.value = false;
+    console.log(error);
+    loginFlag.value = false;
   })
 };
 
-const onFinishFailed = (errorInfo: any) => {
-  console.log("Failed:", errorInfo);
-};
+const requestCaptcha = () => {
+  getCaptcha().then(response => {
+    let result = response.data;
+    if (result.code === 200) {
+      captchaState.key = result.data.key;
+      captchaState.img_base = result.data.img_base;
+    } else {
+      captchaState.enable = false;
+    }
+  }).catch(error => {
+    console.log(error);
+    captchaState.enable = false;
+  })
+}
+
+onMounted(() => requestCaptcha());
 </script>
 
 <style lang="scss" scoped>
@@ -149,7 +177,7 @@ const onFinishFailed = (errorInfo: any) => {
   padding: 0;
 }
 .container {
-  background-image: url(https://mdn.alipayobjects.com/yuyan_qk0oxh/afts/img/V-_oS6r-i7wAAAAAAAAAAAAAFl94AQBr);
+  background-image: url("/background.png");
   background-size: 100% 100%;
   .desc {
     text-align: center;
@@ -176,7 +204,17 @@ const onFinishFailed = (errorInfo: any) => {
 .login-form-button {
   width: 100%;
 }
+.login-form-captcha {
+  width: 80px;
+
+  &:hover {
+    cursor: pointer;
+  }
+}
 .login-form-forgot {
   float: right;
+}
+:deep(.ant-input-group .ant-input-group-addon) {
+  padding: 0;
 }
 </style>

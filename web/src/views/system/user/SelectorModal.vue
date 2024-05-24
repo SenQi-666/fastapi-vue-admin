@@ -51,20 +51,20 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, reactive, computed, unref, onMounted } from 'vue';
+import { ref, reactive, computed, unref } from 'vue';
 import { Table } from 'ant-design-vue';
 import { getPositionOptions } from '@/api/position'
 import { getRoleOptions } from '@/api/role'
 import type { TableColumnsType } from 'ant-design-vue';
-import type { searchDataType, tableDataType } from '../position/types';
+import type { searchSelectDataType, roleSelectorType, positionSelectorType } from './types';
 
 const subject = ref('');
 const openModal = ref(false);
 const tableLoading = ref(false);
-const dataSource = ref<tableDataType[]>([]);
-const selectedRowKeys = ref<tableDataType['id'][]>([]);
-const selectedRowItemNames = ref<tableDataType['name'][]>([]);
-const formState: searchDataType = reactive({
+const dataSource = ref<roleSelectorType[] | positionSelectorType[]>([]);
+const selectedRowKeys = ref<roleSelectorType['id'][] | positionSelectorType['id'][]>([]);
+const selectedRowItemNames = ref<roleSelectorType['name'][] | positionSelectorType['name'][]>([]);
+const formState: searchSelectDataType = reactive({
   name: "",
   available: "true"
 });
@@ -129,11 +129,12 @@ const loadingData = () => {
     pagination.total = result.total;
     tableLoading.value = false;
   }).catch(error => {
+    console.log(error);
     tableLoading.value = false;
   })
 }
 
-const onFinish = (values: any) => {
+const onFinish = () => {
   pagination.current = 1;
   loadingData();
 };
@@ -153,7 +154,10 @@ const handleTableChange = (values: any) => {
   loadingData();
 }
 
-const onSelectChange = (selectingRowKeys: tableDataType['id'][], selectingRows: tableDataType[]) => {
+const onSelectChange = (
+  selectingRowKeys: roleSelectorType['id'][] | positionSelectorType['id'][],
+  selectingRows: roleSelectorType[] | positionSelectorType[],
+) => {
   selectedRowKeys.value = selectingRowKeys;
   selectedRowItemNames.value = selectingRows.map(row => row.name);
 }

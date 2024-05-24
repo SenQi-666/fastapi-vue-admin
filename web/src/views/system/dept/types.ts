@@ -7,8 +7,3 @@ export interface treeDataType {
   description?: string;
   children?: treeDataType[];
 }
-
-export interface checkedTreeItemType {
-  checked?: treeDataType['id'][];
-  halfChecked?: treeDataType['id'][];
-}

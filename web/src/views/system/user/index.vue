@@ -254,7 +254,7 @@ import { getDeptOptions } from '@/api/dept'
 import { isEmpty, listToTree } from '@/utils/util';
 import { PlusOutlined, DownOutlined, CheckOutlined, StopOutlined, SearchOutlined } from '@ant-design/icons-vue';
 import type { TableColumnsType, MenuProps } from 'ant-design-vue';
-import type { searchDataType, tableDataType } from './types'
+import type { searchDataType, tableDataType, deptTreeType, roleSelectorType, positionSelectorType } from './types'
 import md5 from "md5"
 import SelectorModal from './SelectorModal.vue'
 
@@ -269,17 +269,13 @@ const updateForm = ref();
 const selectorModal = ref();
 const dataSource = ref<tableDataType[]>([]);
 const selectedRowKeys = ref<tableDataType['id'][]>([]);
-const deptTreeData = ref([]);
+const deptTreeData = ref<deptTreeType[]>([]);
 
 const formState: searchDataType = reactive({
   username: "",
   name: "",
   available: "true"
 });
-const formSelectState: searchSelectDataType = reactive({
-  name: "",
-  available: "true"
-})
 const pagination = reactive({
   current: 1,
   pageSize: 10,
@@ -322,7 +318,7 @@ const updateState: tableDataType = reactive({
   available: true,
   description: '',
 })
-const detailState = ref<tableDataType>({})
+const detailState = ref<tableDataType>();
 
 const columns: TableColumnsType = [
   {
@@ -419,6 +415,7 @@ const loadingData = () => {
     pagination.total = result.total;
     tableLoading.value = false;
   }).catch(error => {
+    console.log(error);
     tableLoading.value = false;
   })
 }
@@ -447,7 +444,7 @@ const handleTableChange = (values: any) => {
 }
 
 
-const onSelectChange = (selectingRowKeys: tableDataType['id'][], selectingRows: tableDataType[]) => {
+const onSelectChange = (selectingRowKeys: tableDataType['id'][]) => {
   selectedRowKeys.value = selectingRowKeys;
 }
 
@@ -543,7 +540,7 @@ const handleModalSumbit = () => {
         description: updateState.description, is_superuser: updateState.is_superuser
       }
       if (showPasswordInput.value && updateState.password) {
-        updateBody.password = md5(updateState.password);
+        updateBody['password'] = md5(updateState.password);
       }
 
       updateUser(updateBody).then(response => {
@@ -613,7 +610,11 @@ const handleMoreClick: MenuProps['onClick'] = e => {
   });
 }
 
-const handleSelectorModalEvent = (subject: string, selectedSelectorRowKeys: number[], selectedSelectorRowNames: string[]) => {
+const handleSelectorModalEvent = (
+  subject: string,
+  selectedSelectorRowKeys: roleSelectorType['id'][] | positionSelectorType['id'][],
+  selectedSelectorRowNames: roleSelectorType['name'][] | positionSelectorType['name'][]
+) => {
   const ids_key = subject === 'role' ? 'role_ids' : 'position_ids';
   const names_key = subject === 'role' ? 'roleNames' : 'positionNames';
 

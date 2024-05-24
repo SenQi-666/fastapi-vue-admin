@@ -18,3 +18,10 @@ export function getNewToken (body) {
     data: body
   })
 }
+
+export function getCaptcha () {
+  return request({
+    url: '/api/system/auth/captcha/get',
+    method: 'post',
+  })
+}

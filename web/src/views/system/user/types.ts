@@ -18,20 +18,46 @@ export interface tableDataType {
   mobile?: string;
   gender?: number;
   password?: string;
-  dept_id: number;
-  dept_name?: string;
-  roles?: Object;
+  dept_id: deptTreeType['id'];
+  dept_name?: deptTreeType['name'];
+  roles?: roleSelectorType[];
   roleNames?: string;
-  role_ids?: Object[];
-  positions?: Object;
+  role_ids?: roleSelectorType['id'][];
+  positions?: positionSelectorType[];
   positionNames?: string;
-  position_ids?: Object[];
+  position_ids?: positionSelectorType['id'][];
   is_superuser?: boolean;
   available?: boolean;
   description?: string;
   last_login?: string;
   created_at?: string;
   updated_at?: string;
-  creator?: Object;
-  creatorName?: string;
+  creator?: creatorType;
+  creatorName?: creatorType['name'];
+}
+
+export interface deptTreeType {
+  id?: number;
+  name?: string;
+  parent_id?: number;
+  children?: deptTreeType[];
+}
+
+export interface roleSelectorType {
+  id?: number;
+  name?: string;
+  available?: boolean;
+  description?: string;
+}
+
+export interface positionSelectorType {
+  id?: number;
+  name?: string;
+  available?: boolean;
+  description?: string;
+}
+
+interface creatorType {
+  id?: number;
+  name?: string;
 }

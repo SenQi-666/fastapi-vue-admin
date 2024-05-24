@@ -12,7 +12,7 @@
     </template>
 
     <div style="display: flex;">
-      <div style="minWidth: 300px;">
+      <div style="min-width: 300px;">
         <div style="display: flex; gap: 10px; ">
           <div style="width: 10px; background-color: #1677ff;"></div>
           <div>
@@ -97,13 +97,14 @@ import { getMenuOptions } from '@/api/menu';
 import { listToTree } from '@/utils/util';
 import { message } from 'ant-design-vue';
 import { QuestionCircleOutlined } from '@ant-design/icons-vue';
+import type { tableDataType, permissionDataType, permissionDeptType, permissionMenuType } from './types'
 import type { TableColumnsType } from 'ant-design-vue';
 
 const openDrawer = ref(false);
-const permissionState = ref({});
+const permissionState = ref<permissionDataType>();
 
-const deptTreeData = ref([]);
-const menuTreeData = ref([]);
+const deptTreeData = ref<permissionDeptType[]>([]);
+const menuTreeData = ref<permissionMenuType[]>([]);
 const tableLoading = ref(false);
 const drawerSaving = ref(false);
 
@@ -134,7 +135,7 @@ const menuColumns: TableColumnsType = [
   }
 ];
 
-const init = (record) => {
+const init = (record: tableDataType) => {
   if (!record) {
     message.error()
     return
@@ -155,6 +156,8 @@ const init = (record) => {
   getDeptOptions().then(response => {
     const result = response.data;
     deptTreeData.value = listToTree(result.data);
+  }).catch(error => {
+    console.log(error);
   })
 
   getMenuOptions().then(response => {
@@ -162,6 +165,7 @@ const init = (record) => {
     menuTreeData.value = listToTree(result.data);
     tableLoading.value = false;
   }).catch(error => {
+    console.log(error);
     tableLoading.value = false;
   })
 
@@ -170,6 +174,8 @@ const init = (record) => {
       const result = response.data;
       permissionState.value.menu_ids = result.data.menus.map(menu => menu.id);
       permissionState.value.dept_ids = result.data.depts.map(dept => dept.id);
+    }).catch(error => {
+      console.log(error);
     })
   }
 }
@@ -189,13 +195,12 @@ const handleDrawerSave = () => {
     openDrawer.value = false;
     emit('event');
   }).catch(error => {
+    console.log(error);
     drawerSaving.value = false;
   })
 }
 
-const selectedRowKeys = ref<tableDataType['id'][]>([]);
-
-const onSelectChange = (selectingRowKeys: tableDataType['id'][], selectingRows: tableDataType[]) => {
+const onMenuSelectChange = (selectingRowKeys: permissionMenuType['id'][]) => {
   permissionState.value.menu_ids = selectingRowKeys;
 }
 
@@ -203,7 +208,7 @@ const menuRowSelection = computed(() => {
   return {
     selectedRowKeys: permissionState.value.menu_ids,
     checkStrictly: false,
-    onChange: onSelectChange
+    onChange: onMenuSelectChange
   }
 });
 
