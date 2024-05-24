@@ -19,7 +19,8 @@ class Settings(BaseSettings):
     # 演示功能白名单
     DEMO_WHITE_LIST_PATH: List[str] = [
         "/api/system/auth/login",
-        "/api/system/auth/token/refresh"
+        "/api/system/auth/token/refresh",
+        "/api/system/auth/captcha/get"
     ]
 
     # 主机IP

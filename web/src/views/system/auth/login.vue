@@ -138,14 +138,13 @@ const onFinish = (values: loginFormType) => {
       save_token(result.data.access_token, result.data.refresh_token, result.data.expires_in)
       loginFlag.value = false;
       router.push('/');
-    } else if (result.code === 410) {
-      loginFlag.value = false;
-      requestCaptcha();
     } else {
       loginFlag.value = false;
     }
   }).catch(error => {
-    console.log(error);
+    if (error.data.code === 410) {
+      requestCaptcha();
+    }
     loginFlag.value = false;
   })
 };
