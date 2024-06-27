@@ -101,3 +101,12 @@ Redis（推荐使用最新版）
 - 前端地址：http://127.0.0.1:5180
 - 账号：`senqi`密码：`senqi1010`
 - 接口地址：http://127.0.0.1:8080/docs
+
+## 微信群
+
+在下方放一个微信群二维码，可以用于技术交流，也可以一起讨论在项目使用过程中遇到的各种问题。真心希望大家加入，积极讨论，让我们一起抱团取暖！
+
+如果微信群二维码已过期，需要进群的可以先扫我个人的二维码，备注admin，我看到后会同意申请并拉你进群。
+
+![](https://mp-imgs.senqiweb.cn/project/images/fv_group_qrcode.jpg)
+![](https://mp-imgs.senqiweb.cn/project/images/wechat.jpg)
