@@ -2,6 +2,13 @@
   <p align="center">
     <img src="web/public/logo.png" height="150" alt="logo"/>
   </p>
+  <p align="center">
+    <a href="https://gitee.com/senqi666/fastapi-vue-admin"><img src="https://gitee.com/senqi666/fastapi-vue-admin/badge/star.svg?theme=dark"></a>
+    <a href="https://github.com/SenQi-666/fastapi-vue-admin"><img src="https://img.shields.io/github/stars/SenQi-666/fastapi-vue-admin?style=social"></a>
+    <a href="https://github.com/SenQi-666/fastapi-vue-admin/blob/main/LICENSE"><img src="https://img.shields.io/badge/License-MIT-orange"></a>
+    <img src="https://img.shields.io/badge/Python-≥3.10-blue">
+    <img src="https://img.shields.io/badge/NodeJS-≥20.0-blue">
+  </p>
 </div>
 
 ## 介绍
