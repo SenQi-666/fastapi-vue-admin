@@ -12,9 +12,7 @@ from app.core.security import (
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.core.exceptions import CustomException
 from aioredis import Redis
-from captcha.image import ImageCaptcha
-from io import BytesIO
-from app.utils.tools import get_random_character
+from app.utils.tools import get_random_character, generate_captcha
 from datetime import timedelta
 from app.core.config import settings
 from app.crud.system import UserCRUD
@@ -104,7 +102,7 @@ class CaptchaService:
         random_strings = random.sample(list(total_strings), 4)
         captcha_string = "".join(random_strings)
 
-        captcha: BytesIO = ImageCaptcha().generate(captcha_string)
+        captcha = generate_captcha(captcha_string)
         captcha_bytes = captcha.getvalue()
         captcha_base64 = base64.b64encode(captcha_bytes).decode()
 

@@ -5,7 +5,7 @@
   <p align="center">
     <a href="https://gitee.com/senqi666/fastapi-vue-admin"><img src="https://gitee.com/senqi666/fastapi-vue-admin/badge/star.svg?theme=dark"></a>
     <a href="https://github.com/SenQi-666/fastapi-vue-admin"><img src="https://img.shields.io/github/stars/SenQi-666/fastapi-vue-admin?style=social"></a>
-    <a href="https://github.com/SenQi-666/fastapi-vue-admin/blob/main/LICENSE"><img src="https://img.shields.io/badge/License-MIT-orange"></a>
+    <a href="https://gitee.com/senqi666/fastapi-vue-admin/blob/master/LICENSE"><img src="https://img.shields.io/badge/License-MIT-orange"></a>
     <img src="https://img.shields.io/badge/Python-≥3.10-blue">
     <img src="https://img.shields.io/badge/NodeJS-≥20.0-blue">
   </p>
@@ -41,14 +41,14 @@ PC端演示地址：https://fastapi-vue-admin.senqiweb.cn
 
 ### 获取代码
 
-> git clone https://github.com/SenQi-666/fastapi-vue-admin.git
+> git clone https://gitee.com/senqi666/fastapi-vue-admin.git
 
 ### 准备工作
 
 ```
 Python == 3.10（其他版本均未测试）
 nodejs >= 20.0（推荐使用最新版）
-PgSQL（推荐使用最新版）
+PgSQL == 14（其他版本均未测试）
 Redis（推荐使用最新版）
 ```
 

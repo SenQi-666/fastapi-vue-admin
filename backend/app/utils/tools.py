@@ -2,13 +2,15 @@
 # -*- coding: utf-8 -*-
 
 from typing import Any, List, Dict, Sequence, Optional
-import importlib, uuid
+import importlib, uuid, random
 from pathlib import Path
 from app.crud.base import ModelType
 from app.models.base import Model
 from sqlalchemy.sql.elements import ColumnElement
 from fastapi import UploadFile
 from app.core.config import settings
+from io import BytesIO
+from PIL import Image, ImageDraw, ImageFont
 
 
 def import_module(module: str) -> Any:
@@ -65,6 +67,78 @@ def get_random_character() -> str:
     :return: 随机字符串
     """
     return uuid.uuid4().hex
+
+
+# 生成带有噪声和干扰的验证码图片
+def generate_captcha(code) -> BytesIO:
+    """
+    生成带有噪声和干扰的验证码图片
+    :return: 验证码图片流
+    """
+    # 创建一张随机颜色背景的图片
+    background_color = (random.randint(200, 255), random.randint(200, 255), random.randint(200, 255))
+    width, height = 160, 60
+    image = Image.new('RGB', (width, height), color=background_color)
+
+    # 获取一个绘图对象
+    draw = ImageDraw.Draw(image)
+
+    # 字体设置（如果需要自定义字体，请替换下面的字体路径）
+    font = ImageFont.truetype("./app/resources/gantians.otf", 42)
+
+    # 计算验证码文本的总宽度
+    total_text_width = 0
+    for char in code:
+        # 计算文本的宽度
+        bbox = ImageDraw.Draw(Image.new('RGB', (1, 1))).textbbox((0, 0), char, font=font)
+        text_width = bbox[2] - bbox[0]
+        total_text_width += text_width
+
+    # 计算每个字符的起始位置
+    x_offset = (width - total_text_width) / 2
+    # 计算文本的高度
+    bbox = ImageDraw.Draw(Image.new('RGB', (1, 1))).textbbox((0, 0), code[0], font=font)
+    text_height = bbox[3] - bbox[1]
+    y_offset = (height - text_height) / 2 - draw.textbbox((0, 0), code[0], font=font)[1]
+
+    # 绘制每个字符（单独的颜色和扭曲）
+    for char in code:
+        # 随机选择字体颜色
+        text_color = (random.randint(0, 100), random.randint(0, 100), random.randint(0, 100))
+
+        # 计算字符位置并稍微扭曲
+        bbox = ImageDraw.Draw(Image.new('RGB', (1, 1))).textbbox((0, 0), char, font=font)
+        char_width = bbox[2] - bbox[0]
+        char_x = x_offset + random.uniform(-3, 3)
+        char_y = y_offset + random.uniform(-5, 5)
+
+        # 绘制字符
+        draw.text((char_x, char_y), char, font=font, fill=text_color)
+
+        # 更新下一个字符的位置
+        x_offset += char_width + random.uniform(2, 8)
+
+    # 添加少量的圆圈干扰
+    for _ in range(random.randint(2, 4)):
+        # 随机位置和大小
+        x = random.randint(0, width)
+        y = random.randint(0, height)
+        radius = random.randint(5, 10)
+        draw.ellipse((x - radius, y - radius, x + radius, y + radius), outline=text_color)
+
+    # 添加少量的噪点
+    for _ in range(random.randint(10, 20)):
+        x = random.randint(0, width - 1)
+        y = random.randint(0, height - 1)
+        noise_size = random.randint(2, 4)
+        noise_color = (random.randint(0, 50), random.randint(0, 50), random.randint(0, 50))
+        draw.rectangle([x, y, x + noise_size, y + noise_size], fill=noise_color)
+
+    # 返回验证码图片流
+    stream = BytesIO()
+    image.save(stream, format='PNG')
+
+    return stream
 
 
 def get_parent_id_map(model_list: Sequence[Model]) -> Dict[int, int]:
