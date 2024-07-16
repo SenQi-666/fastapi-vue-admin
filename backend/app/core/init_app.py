@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from fastapi import FastAPI
+from fastapi import FastAPI, applications
 from app.core.config import settings
 from app.utils.tools import import_module
 from app.core.exceptions import (
@@ -64,27 +64,28 @@ def register_routers(app: FastAPI, prefix: str = "/") -> None:
     app.include_router(ApiRouter, prefix=prefix)
 
 
-def reset_swagger(app: FastAPI) -> FastAPI:
+def reset_api_docs() -> None:
     """
-    修复API文档CDN无法访问的问题
+    修复Redoc API文档CDN无法访问的问题
     """
-    @app.get("/docs", include_in_schema=False)
-    async def custom_swagger_ui_html() -> HTMLResponse:
+
+    def swagger_monkey_patch(*args, **kwargs):
+        """
+        修复Swagger API文档CDN无法访问的问题
+        """
         return get_swagger_ui_html(
-            openapi_url=app.openapi_url,
-            title=app.title,
+            *args, **kwargs,
             swagger_css_url="/static/swagger/swagger-ui/swagger-ui.css",
             swagger_js_url="/static/swagger/swagger-ui/swagger-ui-bundle.js",
-            swagger_favicon_url="/static/swagger/favicon.png",
+            swagger_favicon_url="/static/swagger/favicon.png"
         )
 
-    @app.get("/redoc", include_in_schema=False)
-    async def redoc_html() -> HTMLResponse:
+    def redoc_monkey_patch(*args, **kwargs):
         return get_redoc_html(
-            openapi_url=app.openapi_url,
-            title=app.title + " - ReDoc",
+            *args, **kwargs,
             redoc_js_url="/static/swagger/redoc/bundles/redoc.standalone.js",
-            redoc_favicon_url="/static/swagger/favicon.png",
+            redoc_favicon_url="/static/swagger/favicon.png"
         )
 
-    return app
+    applications.get_swagger_ui_html = swagger_monkey_patch
+    applications.get_redoc_html = redoc_monkey_patch

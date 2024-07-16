@@ -9,7 +9,7 @@ from app.core.init_app import (
     register_middlewares,
     register_exceptions,
     register_routers,
-    reset_swagger
+    reset_api_docs
 )
 import uvicorn, typer
 from app.scripts.initialize import InitializeData
@@ -33,7 +33,7 @@ def create_app() -> FastAPI:
     # 注册中间件
     register_middlewares(app)
     # 重设API文档
-    reset_swagger(app)
+    reset_api_docs()
 
     return app
 
